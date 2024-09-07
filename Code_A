@@ -1,3 +1,53 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
+# 1. Initialize Variables
+T_initial = 60  # Initial geyser temperature in Celsius
+T_cold = 20     # Cold water temperature in Celsius
+T_set = 60      # Desired temperature
+P_heater = 3.5  # Power of the heating element in kW
+water_capacity = 100  # Capacity of geyser in liters
+
+# Time variables
+time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
+hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
+
+# 2. Simulate Hot Water Usage (for simplicity, assuming 2 peak usage times)
+for i, t in enumerate(time):
+    if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
+        hot_water_usage[i] = 20  # 20 liters of hot water used
+
+# 3. Simulate Geyser Temperature over Time
+temperature = np.full_like(time, T_initial)
+
+for i in range(1, len(time)):
+    if hot_water_usage[i] > 0:
+        used_water = hot_water_usage[i]
+        inflow_water = used_water
+        new_temperature = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
+        temperature[i] = new_temperature
+        
+    # Reheat the water if temperature is below set point
+    if temperature[i] < T_set:
+        # Simple linear reheating model for now
+        temperature[i] += P_heater * 0.1  # Add heating based on power and time interval
+
+#  Plot the Results
+plt.figure(figsize=(12, 6))
+
+# Hot Water Usage Plot
+plt.subplot(2, 1, 1)
+plt.plot(time, hot_water_usage, label='Hot Water Usage (liters)')
+plt.ylabel('Hot Water Usage (liters)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
+# Geyser Temperature Plot
+plt.subplot(2, 1, 2)
+plt.plot(time, temperature, label='Geyser Temperature (°C)', color='r')
+plt.ylabel('Temperature (°C)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
