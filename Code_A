@@ -31,7 +31,7 @@ for i in range(1, len(time)):
     # Reheat the water if temperature is below set point
     if temperature[i] < T_set:
         # Calculate energy added (kW to kJ: 1 kW = 1000 kJ/h)
-        energy_added = P_heater * 1000 * 0.1  # Power (kW) × 1000 to get kJ, over 0.1 hours
+        energy_added = P_heater * 0.1  # Power (kW) = kJ, times 0.1 hours
         mass_of_water = water_capacity  # 1 liter = 1 kg
         temp_increase = energy_added / (mass_of_water * specific_heat_capacity)
         temperature[i] += temp_increase  # Add the temperature increase based on energy added
