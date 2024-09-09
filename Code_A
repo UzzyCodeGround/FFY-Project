@@ -12,11 +12,16 @@ water_capacity = 100  # Capacity of geyser in liters
 time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
 hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
+# 2. Simulate Hot Water Usage for 12 people showering at the same time
+liters_per_minute_per_student = 10  # Each student uses 10 liters per minute
+shower_duration = 4 / 60  # Shower duration in hours (4 minutes)
+max_students_showering = 12
 
 # 2. Simulate Hot Water Usage (for simplicity, assuming 2 peak usage times)
 for i, t in enumerate(time):
-    if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
-        hot_water_usage[i] = 20  # 20 liters of hot water used
+    if 7 <= t <= 7 + shower_duration or 19 <= t <= 19 + shower_duration:  # Peak shower times
+        hot_water_usage[i] = liters_per_minute_per_student * max_students_showering * 4  # Total liters for all students
+
 
 # 3. Simulate Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
