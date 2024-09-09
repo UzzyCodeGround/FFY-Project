@@ -12,6 +12,7 @@ water_capacity = 100  # Capacity of geyser in liters
 time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
 hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
+
 # 2. Simulate Hot Water Usage (for simplicity, assuming 2 peak usage times)
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
@@ -37,8 +38,8 @@ plt.figure(figsize=(12, 6))
 
 # Hot Water Usage Plot
 plt.subplot(2, 1, 1)
-plt.plot(time, hot_water_usage, label='Hot Water Usage (liters)')
-plt.ylabel('Hot Water Usage (liters)')
+plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)')
+plt.ylabel('Hot Water Usage (litres)')
 plt.xlabel('Time (hours)')
 plt.legend()
 
