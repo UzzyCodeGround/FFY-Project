@@ -1,5 +1,5 @@
-import numpy as np 
-import matplotlib.pyplot as plt 
+import numpy as np
+import matplotlib.pyplot as plt
 
 # 1. Initialize Variables
 T_initial = 60  # Initial geyser temperature in Celsius
@@ -7,11 +7,11 @@ T_cold = 20     # Cold water temperature in Celsius
 T_set = 60      # Desired temperature
 P_heater = 3.5  # Power of the heating element in kW
 water_capacity = 100  # Capacity of geyser in liters
+specific_heat_capacity = 4.186  # Specific heat capacity of water in kJ/kg°C
 
 # Time variables
 time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
 hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
-
 
 # 2. Simulate Hot Water Usage (for simplicity, assuming 2 peak usage times)
 for i, t in enumerate(time):
@@ -30,10 +30,13 @@ for i in range(1, len(time)):
         
     # Reheat the water if temperature is below set point
     if temperature[i] < T_set:
-        # Simple linear reheating model for now
-        temperature[i] += P_heater * 0.1  # Add heating based on power and time interval
+        # Calculate energy added (kW to kJ: 1 kW = 1000 kJ/h)
+        energy_added = P_heater * 1000 * 0.1  # Power (kW) × 1000 to get kJ, over 0.1 hours
+        mass_of_water = water_capacity  # 1 liter = 1 kg
+        temp_increase = energy_added / (mass_of_water * specific_heat_capacity)
+        temperature[i] += temp_increase  # Add the temperature increase based on energy added
 
-#  Plot the Results
+# 4. Plot the Results
 plt.figure(figsize=(12, 6))
 
 # Hot Water Usage Plot
