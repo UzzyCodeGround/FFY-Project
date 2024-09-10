@@ -10,16 +10,17 @@ water_capacity = 100  # Capacity of geyser in liters
 specific_heat_capacity = 4.186  # Specific heat capacity of water in kJ/kg°C
 
 # Time variables
-time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
-hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
+time = np.arange(0, 24, 0.1)  
+hot_water_usage = np.zeros_like(time)  
 
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
-    if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
-        hot_water_usage[i] = 20  # 20 liters of hot water used
+    if 7 <= t <= 8 or 19 <= t <= 20:  
+        hot_water_usage[i] = 20  
 
 # Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
+#print(temperature)
 
 for i in range(1, len(time)):
     if hot_water_usage[i] > 0:
@@ -27,7 +28,8 @@ for i in range(1, len(time)):
         inflow_water = used_water
         new_temperature = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
         temperature[i] = new_temperature
-        
+        #print(new_temperature)
+
     # Reheating the water if temperature is below set point
     if temperature[i] < T_set:
         # Calculate energy added 
@@ -35,6 +37,7 @@ for i in range(1, len(time)):
         mass_of_water = water_capacity  # 1 liter = 1 kg
         temp_increase = energy_added / (mass_of_water * specific_heat_capacity)
         temperature[i] += temp_increase  # Add the temperature increase based on energy added
+        #print(temp_increase)
 
 # 4. Plot the Results
 plt.figure(figsize=(12, 6))
