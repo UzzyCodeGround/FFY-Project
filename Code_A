@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 1. Initialize Variables
+# Initialise Variables
 T_initial = 60  # Initial geyser temperature in Celsius
 T_cold = 20     # Cold water temperature in Celsius
 T_set = 60      # Desired temperature
@@ -13,12 +13,12 @@ specific_heat_capacity = 4.186  # Specific heat capacity of water in kJ/kg°C
 time = np.arange(0, 24, 0.1)  # Time in hours (simulating a day)
 hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
-# 2. Simulate Hot Water Usage (for simplicity, assuming 2 peak usage times)
+# Simulate Hot Water Usage
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
         hot_water_usage[i] = 20  # 20 liters of hot water used
 
-# 3. Simulate Geyser Temperature over Time
+# Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
 
 for i in range(1, len(time)):
@@ -28,10 +28,10 @@ for i in range(1, len(time)):
         new_temperature = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
         temperature[i] = new_temperature
         
-    # Reheat the water if temperature is below set point
+    # Reheating the water if temperature is below set point
     if temperature[i] < T_set:
-        # Calculate energy added (kW to kJ: 1 kW = 1000 kJ/h)
-        energy_added = P_heater * 0.1  # Power (kW) = kJ, times 0.1 hours
+        # Calculate energy added 
+        energy_added = P_heater * 0.1  # Power (kW) = kJ, times 0.1 hours 
         mass_of_water = water_capacity  # 1 liter = 1 kg
         temp_increase = energy_added / (mass_of_water * specific_heat_capacity)
         temperature[i] += temp_increase  # Add the temperature increase based on energy added
