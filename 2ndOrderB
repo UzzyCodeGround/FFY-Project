@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 
 T_initial = 60  # Initial geyser temperature in Celsius
 T_cold = 20     # Cold water temperature in Celsius
+T_ambient = 25  # Ambient temperature in Celsius (environment temp)
 T_set = 60      # Desired temperature
 T_threshold = 55  # Threshold below which the heating element turns on
 reheating_rate_per_minute = 1  # Heater raises temperature by 1°C per minute
 reheating_rate_per_time_step = reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
+heat_loss_coefficient = 0.01  # Heat loss factor (adjust this to change heat loss rate)
 water_capacity = 100  # Capacity of geyser in liters
 
 
@@ -16,24 +18,28 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
 
 for i, t in enumerate(time):
-    if 7 <= t <= 8 or 19 <= t <= 20:  # Simulate peak shower times
-        hot_water_usage[i] = 20  # 20 liters of hot water used
+    if 7 <= t <= 8 or 19 <= t <= 20:  
+        hot_water_usage[i] = 20  
 
 temperature = np.full_like(time, T_initial)  # Initialize the temperature array to start at T_initial (60°C)
 
 
 for i in range(1, len(time)):
-    
+    # Calculate new temperature when hot water is used
     if hot_water_usage[i] > 0:
         used_water = hot_water_usage[i]
         inflow_water = used_water
         temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
     else:
-         
-        if temperature[i-1] < T_set:  # Reheating is based on the previous time step
-            temperature[i] = temperature[i-1] + reheating_rate_per_time_step  # Gradual reheating
+        # heat loss when no water is used
+        heat_loss = heat_loss_coefficient * (temperature[i-1] - T_ambient) #incorporate surface area in equation
+        temperature[i] = temperature[i-1] - heat_loss
 
-      # Ensure temperature doesn't exceed set point
+        #  If temperature drops below threshold, turn on heating element
+        if temperature[i] < T_threshold:
+            temperature[i] += reheating_rate_per_time_step  # Gradual reheating -once a more sofisticated formula is found i while implement it 
+
+  
     if temperature[i] > T_set:
         temperature[i] = T_set
 
@@ -56,3 +62,7 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+# mass of water relevance 
+#incorporate area of geyser being heated
+#incorporate non constant 
