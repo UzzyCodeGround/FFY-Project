@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7,8 +8,6 @@ T_cold = 20     # Cold water temperature in Celsius
 T_ambient = 25  # Ambient temperature in Celsius (environment temp)
 T_set = 60      # Desired maximum temperature
 T_threshold = 55  # Threshold below which the heating element turns on
-reheating_rate_per_minute = 2 # Heater raises temperature by 2°C per minute #2
-reheating_rate_per_time_step = reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Geyser Physical Properties
 water_capacity = 100  # Capacity of geyser in liters
@@ -17,7 +16,11 @@ radius = 0.3  # Radius of the geyser in meters
 surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
 # Heat Transfer Coefficient
-U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C) #.12
+U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
+
+# Maximum Reheating Rate at Peak Power (2°C per minute or 13.95 kW)
+max_reheating_rate_per_minute = 2
+max_reheating_rate_per_time_step = max_reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Time variables
 time = np.arange(0, 24, 0.01)  # Time in hours (simulating a day with smaller time steps)
@@ -25,8 +28,22 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
-    if 7 <= t <= 8 or 19 <= t <= 20:  
+    if 7 <= t <= 8 or 19 <= t <= 20:
         hot_water_usage[i] = 20  # Use 20 liters during peak times
+
+# Create Sinusoidal Power Supply Curve
+# Sine wave equation: f(t) = A * sin(B * (t - C)) + D
+# A = Amplitude (Maximum value), B = Frequency, C = Horizontal Shift, D = Vertical Shift
+
+# Set the sine wave parameters
+A = 1  # Amplitude (scaling factor)
+B = np.pi / 12  # Frequency for a 24-hour cycle (2 * pi over 24 hours)
+C = 8  # Horizontal shift to peak at 12 PM (noon)
+D = 0  # Vertical shift
+
+# Power Supply Function (Normalized 0 to 1)
+power_supply = A * np.sin(B * (time - C))  # Sine curve peaks at 12 PM, zeroes at 6 AM and 7 PM
+power_supply = np.clip(power_supply, 0, 1)  # Clip values to stay within 0 and 1
 
 # Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
@@ -41,32 +58,42 @@ for i in range(1, len(time)):
         temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
     else:
         # Gradual heat loss when no water is used
-        heat_loss = U * surface_area * (temperature[i-1] - T_ambient) * 0.01  # Adjusted for 0.01-hour time steps
+        heat_loss = U * surface_area * (temperature[i-1] - T_ambient) * 0.01 # Adjusted for 0.01-hour time steps
         temperature[i] = temperature[i-1] - heat_loss
 
         # Heater turns on if temperature drops below the threshold
         if temperature[i] < T_threshold:
             heater_on = True
 
-        # Heater turns off only when it reaches exactly 60°C
+        # Heater operation controlled by power supply
         if heater_on:
-            temperature[i] += reheating_rate_per_time_step
+            current_reheating_rate = max_reheating_rate_per_time_step * power_supply[i]  # Scaled by power supply curve
+            temperature[i] += current_reheating_rate
+
+            # Heater turns off only when it reaches exactly 60°C
             if temperature[i] >= T_set:
                 temperature[i] = T_set  # Ensure it caps at 60°C
                 heater_on = False  # Turn off the heater
 
 # Plot the Results
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(12, 8))
 
 # Hot Water Usage Plot
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)')
 plt.ylabel('Hot Water Usage (litres)')
 plt.xlabel('Time (hours)')
 plt.legend()
 
+# Power Supply Plot
+plt.subplot(3, 1, 2)
+plt.plot(time, power_supply, label='Power Supply (Normalized)', color='g')
+plt.ylabel('Power Supply (0 to 1)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
 # Geyser Temperature Plot
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 3)
 plt.plot(time, temperature, label='Geyser Temperature (°C)', color='r')
 plt.ylabel('Temperature (°C)')
 plt.xlabel('Time (hours)')
