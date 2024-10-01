@@ -2,26 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Initialise Variables
-T_initial = 55  # Initial geyser temperature in Celsius
-T_cold = 15     # Cold water temperature in Celsius
-T_ambient = 20  # Ambient temperature in Celsius (environment temp)
+T_initial = 60  # Initial geyser temperature in Celsius
+T_cold = 20     # Cold water temperature in Celsius
+T_ambient = 25  # Ambient temperature in Celsius (environment temp)
 T_set = 60      # Desired maximum temperature
-T_threshold = 50  # Threshold below which the heating element turns on
+T_threshold = 55  # Threshold below which the heating element turns on
 
 # Geyser Physical Properties
-water_capacity = 150  # Capacity of geyser in liters (standard for large household)
+water_capacity = 100  # Capacity of geyser in liters
 height = 1.5  # Height of the geyser in meters
-radius = 0.35  # Radius of the geyser in meters
-surface_area = 2 * np.pi * radius * height + 2 * np.pi * radius**2  # Total surface area including top and bottom
+radius = 0.3  # Radius of the geyser in meters
+surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
 # Heat Transfer Coefficient
-U = 0.8  # Overall heat transfer coefficient (in kJ/m^2°C)
+U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
 
-# Maximum Reheating Rate at Peak Power (adjusted for 2 kW heater)
-# Assumption: 1 kW = 860 kcal/h, converted to 1.16 kW raises 1 liter by 1°C in 1 hour
-max_power = 2.0  # Power of heating element in kW
-max_reheating_rate_per_minute = max_power * 860 / water_capacity  # °C per minute
-max_reheating_rate_per_time_step = max_reheating_rate_per_minute * 0.6  # °C per 0.01-hour step (0.6 minutes)
+# Maximum Reheating Rate at Peak Power (2°C per minute or 13.95 kW)
+max_reheating_rate_per_minute = 2
+max_reheating_rate_per_time_step = max_reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Time variables
 time = np.arange(0, 24, 0.01)  # Time in hours (simulating a day with smaller time steps)
@@ -30,7 +28,7 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:
-        hot_water_usage[i] = 15  # Use 15 liters during peak times
+        hot_water_usage[i] = 20  # Use 20 liters during peak times
 
 # Create Sinusoidal Power Supply Curve
 # Sine wave equation: f(t) = A * sin(B * (t - C)) + D
@@ -39,11 +37,11 @@ for i, t in enumerate(time):
 # Set the sine wave parameters
 A = 1  # Amplitude (scaling factor)
 B = np.pi / 12  # Frequency for a 24-hour cycle (2 * pi over 24 hours)
-C = 8  # Horizontal shift to peak at 12 PM (midpoint between 8 AM and 7 PM)
+C = 6.5  # Horizontal shift to peak at 12:00 PM
 D = 0  # Vertical shift
 
 # Power Supply Function (Normalized 0 to 1)
-power_supply = A * np.sin(B * (time - C))  # Sine curve peaks at 12 PM
+power_supply = A * np.sin(B * (time - C))  # Sine curve peaks at 12:00 PM
 power_supply = np.clip(power_supply, 0, 1)  # Clip values to stay within 0 and 1
 
 # Geyser Temperature over Time
@@ -59,8 +57,12 @@ for i in range(1, len(time)):
         temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
     else:
         # Gradual heat loss when no water is used
-        heat_loss = U * surface_area * (temperature[i-1] - T_ambient) * 0.01  # Adjusted for 0.01-hour time steps
-        temperature[i] = temperature[i-1] - heat_loss / (water_capacity * 4.186)  # Convert to °C drop
+        # Compute heat loss per second for smaller increments (e.g., 0.01-hour = 36 seconds)
+        time_interval = 0.01  # Each time step is 0.01 hours
+        incremental_loss = U * surface_area * (temperature[i-1] - T_ambient) * time_interval  # Heat loss over a small time interval
+
+        # Accumulate the heat loss over the time step
+        temperature[i] = temperature[i-1] - incremental_loss
 
         # Heater turns on if temperature drops below the threshold
         if temperature[i] < T_threshold:
@@ -74,7 +76,7 @@ for i in range(1, len(time)):
             else:
                 current_reheating_rate = max_reheating_rate_per_time_step * power_supply[i]  # Scaled by power supply curve
             
-            # Update the temperature
+            # Update the temperature gradually during reheating
             temperature[i] += current_reheating_rate
 
             # Heater turns off only when it reaches exactly 60°C

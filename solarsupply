@@ -36,8 +36,8 @@ for i, t in enumerate(time):
 
 # Set the sine wave parameters
 A = 1  # Amplitude (scaling factor)
-B = np.pi / 12  # Frequency for a 24-hour cycle (2 * pi over 24 hours)
-C = 8  # Horizontal shift to peak at 1:30 PM (midpoint between 8 AM and 7 PM)
+B = np.pi / 12 # Frequency for a 24-hour cycle (2 * pi over 24 hours)
+C = 6  # Horizontal shift to peak at 1:30 PM (midpoint between 8 AM and 7 PM)
 D = 0  # Vertical shift
 
 # Power Supply Function (Normalized 0 to 1)
