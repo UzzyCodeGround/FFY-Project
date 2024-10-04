@@ -14,8 +14,8 @@ height = 1.5  # Height of the geyser in meters
 radius = 0.3  # Radius of the geyser in meters
 surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
-# Heat Transfer Coefficient
-U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
+# Heat Loss Coefficient
+k = 0.03  # Coefficient for exponential decay (adjusted for 0.01-hour time steps)
 
 # Maximum Reheating Rate at Peak Power (2°C per minute or 13.95 kW)
 max_reheating_rate_per_minute = 2
@@ -31,10 +31,6 @@ for i, t in enumerate(time):
         hot_water_usage[i] = 20  # Use 20 liters during peak times
 
 # Create Sinusoidal Power Supply Curve
-# Sine wave equation: f(t) = A * sin(B * (t - C)) + D
-# A = Amplitude (Maximum value), B = Frequency, C = Horizontal Shift, D = Vertical Shift
-
-# Set the sine wave parameters
 A = 1  # Amplitude (scaling factor)
 B = np.pi / 12  # Frequency for a 24-hour cycle (2 * pi over 24 hours)
 C = 6.5  # Horizontal shift to peak at 12:00 PM
@@ -48,7 +44,7 @@ power_supply = np.clip(power_supply, 0, 1)  # Clip values to stay within 0 and 1
 temperature = np.full_like(time, T_initial)
 heater_on = False  # Track whether the heater is on or off
 
-# Simulation Loop
+# Simulation Loop with Exponential Decay for Heat Loss
 for i in range(1, len(time)):
     # Calculate new temperature when hot water is used
     if hot_water_usage[i] > 0:
@@ -56,13 +52,8 @@ for i in range(1, len(time)):
         inflow_water = used_water
         temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
     else:
-        # Gradual heat loss when no water is used
-        # Compute heat loss per second for smaller increments (e.g., 0.01-hour = 36 seconds)
-        time_interval = 0.01  # Each time step is 0.01 hours
-        incremental_loss = U * surface_area * (temperature[i-1] - T_ambient) * time_interval  # Heat loss over a small time interval
-
-        # Accumulate the heat loss over the time step
-        temperature[i] = temperature[i-1] - incremental_loss
+        # Exponential heat loss when no water is used
+        temperature[i] = T_ambient + (temperature[i-1] - T_ambient) * np.exp(-k * 0.01)
 
         # Heater turns on if temperature drops below the threshold
         if temperature[i] < T_threshold:
@@ -89,7 +80,7 @@ plt.figure(figsize=(12, 8))
 
 # Hot Water Usage Plot
 plt.subplot(3, 1, 1)
-plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)')
+plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)', color='orange')
 plt.ylabel('Hot Water Usage (litres)')
 plt.xlabel('Time (hours)')
 plt.legend()
