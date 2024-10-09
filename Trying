@@ -108,5 +108,3 @@ plt.legend()
 plt.tight_layout()
 plt.show() 
 
-largest temperature differene tehrfore largest heat heat_loss
-
