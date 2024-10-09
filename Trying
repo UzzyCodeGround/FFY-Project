@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Initialise Variables
+
 T_initial = 60  # Initial geyser temperature in Celsius
 T_cold = 20     # Cold water temperature in Celsius
 T_ambient = 25  # Ambient temperature in Celsius (environment temp)
@@ -11,11 +11,11 @@ T_threshold = 55  # Threshold below which the heating element turns on
 # Geyser Physical Properties
 water_capacity = 100  # Capacity of geyser in liters
 height = 1.5  # Height of the geyser in meters
-radius = 0.3  # Radius of the geyser in meters
+radius = 0.4  # Radius of the geyser in meters
 surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
 # Heat Transfer Coefficient
-U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
+U = 0.001  # Overall heat transfer coefficient (in kJ/m^2°C)
 
 # Maximum Reheating Rate at Peak Power (2°C per minute or 13.95 kW)
 max_reheating_rate_per_minute = 2
@@ -28,22 +28,16 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:
-        hot_water_usage[i] = 20  # Use 20 liters during peak times
+        hot_water_usage[i] = 0  # Use 20 liters during peak times
 
 
-A = 1  # Amplitude (maximum value)
-B = np.pi / 12  # Frequency for a 24-hour cycle (2 * pi over 24 hours)
-C = 12  # Horizontal shift to align peak at 12 PM
-
-power_supply = A - (A * np.cos((2*np.pi)/12*time))
+A = 0.5 # Amplitude (maximum value)
 
 
-
-#power_supply = np.clip(power_supply, -1, 1)
+power_supply = A - A * np.cos((2*np.pi*time)/12)
 
 
 
-# Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
 heater_on = False  # Track whether the heater is on or off
 
@@ -56,7 +50,7 @@ for i in range(1, len(time)):
         temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
     else:
         # Gradual heat loss when no water is used
-        heat_loss = U * surface_area * (temperature[i-1] - T_ambient) * 0.01  # Adjusted for 0.01-hour time steps
+        heat_loss = U * surface_area * (temperature[i-1] - T_ambient)* 0.01# Adjusted for 0.01-hour time steps 
         temperature[i] = temperature[i-1] - heat_loss
 
         # Heater turns on if temperature drops below the threshold
@@ -67,9 +61,9 @@ for i in range(1, len(time)):
         if heater_on:
             # From 21:00 (9 PM) to 05:00 (5 AM), use constant maximum power
             if (21 <= time[i] <= 24) or (0 <= time[i] < 7):
-                current_reheating_rate = max_reheating_rate_per_time_step  # Constant max power
+                current_reheating_rate = max_reheating_rate_per_time_step*0  # Constant max power
             else:
-                current_reheating_rate = max_reheating_rate_per_time_step * power_supply[i]  # Scaled by power supply curve
+                current_reheating_rate = max_reheating_rate_per_time_step * power_supply[i]*0  # Scaled by power supply curve
             
             # Update the temperature
             temperature[i] += current_reheating_rate

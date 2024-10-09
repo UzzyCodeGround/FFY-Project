@@ -15,7 +15,7 @@ radius = 0.3  # Radius of the geyser in meters
 surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
 # Heat Transfer Coefficient
-U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
+U = 1.5 # Overall heat transfer coefficient (in kJ/m^2°C)
 
 # Maximum Reheating Rate at Peak Power (2°C per minute or 13.95 kW)
 max_reheating_rate_per_minute = 2
