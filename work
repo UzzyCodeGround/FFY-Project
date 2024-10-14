@@ -19,3 +19,5 @@ plt.legend()
 
 plt.tight_layout()
 plt.show() 
+
+//losses/// make more realistic 
