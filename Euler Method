@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Revised Heating Element Model with updated surface area
+
+# Define constants (adjusted estimates based on the provided dimensions)
+P = 1500  # Power of the heating element in watts (W)
+h = 500   # Convective heat transfer coefficient (W/m²·K) - adjusted for better simulation
+A = 0.793   # Surface area of the heating element in m² (calculated from provided dimensions)
+cp = 4186  # Specific heat capacity of water (J/kg·K)
+m = 10     # Mass of the water in kg (example value)
+T_element = 100  # Surface temperature of the heating element in °C
+T_initial = 20   # Initial water temperature in °C
+time_duration = 3600  # Time duration to simulate in seconds (1 hour)
+dt = 1  # Time step in seconds
+
+# Create time array
+time = np.arange(0, time_duration, dt)
+
+# Initialize temperature array for the fluid
+T_fluid = np.zeros_like(time)
+T_fluid[0] = T_initial
+
+# Euler method to update fluid temperature over time
+for i in range(1, len(time)):
+    Q_conv = h * A * (T_element - T_fluid[i-1])  # Convective heat transfer
+    dT_dt = Q_conv / (m * cp)  # Rate of temperature change
+    T_fluid[i] = T_fluid[i-1] + dT_dt * dt  # Update fluid temperature
+
+# Plotting the results
+plt.plot(time / 60, T_fluid)  # Convert time to minutes for the plot
+plt.xlabel('Time (minutes)')
+plt.ylabel('Water Temperature (°C)')
+plt.title('Water Temperature vs Time (Heating Element)')
+plt.grid(True)
+plt.show()
