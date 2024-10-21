@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # Initialise Variables
 T_initial = 60  # Initial geyser temperature in Celsius
-T_cold = 20     # Cold water temperature in Celsius
+T_cold = 25    # Cold water temperature in Celsius
 T_ambient = 25  # Ambient temperature in Celsius (environment temp)
 T_set = 60      # Desired maximum temperature
 T_threshold = 55  # Threshold below which the heating element turns on
@@ -11,19 +11,15 @@ reheating_rate_per_minute = 2  # Heater raises temperature by 2°C per minute
 reheating_rate_per_time_step = reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Geyser Physical Properties
-water_capacity = 100  # Capacity of geyser in liters
+water_capacity = 200  # Capacity of geyser in liters
 m = water_capacity  # Mass of the water in kg (1 liter = 1 kg for water)
-cp = 4186  # Specific heat capacity of water in J/kg°C
-height = 1.5  # Height of the geyser in meters
-radius = 0.3  # Radius of the geyser in meters
-surface_area = 2 * np.pi * radius * height  # Surface area in square meters
+cp = 4.186  # Specific heat capacity of water in J/kg°C
 
+surface_area = 0.5489
 # Heat Transfer Coefficients
 U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
-h = 500  # Convective heat transfer coefficient (W/m²·K)
-A_element = 0.793  # Surface area of the heating element in m²
-T_element = 100  # Surface temperature of the heating element in °C
-k = 15  # Thermal conductivity of geyser walls (W/m·K)
+
+k = 45  # Thermal conductivity of geyser walls (W/m·K)
 dx = 0.0015  # Thickness of the geyser walls in meters
 
 # Time variables
