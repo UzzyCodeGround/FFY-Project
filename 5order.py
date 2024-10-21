@@ -20,7 +20,7 @@ surface_area = 0.46
 # Heat Transfer Coefficients
 U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
 
-k = 0.5  # Thermal conductivity of geyser walls - 1 (W/m·K)
+k = 0.8  # Thermal conductivity of geyser walls - 1 (W/m·K)
 dx = 0.009 # Thickness of the geyser walls in meters
 
 # Time variables
