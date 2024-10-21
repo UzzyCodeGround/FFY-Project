@@ -36,18 +36,22 @@ for i, t in enumerate(time):
 temperature = np.full_like(time, T_initial)
 heater_on = False  # Track whether the heater is on or off
 
-# Function for convection (heating element on)
+A = 0.5
+power_curve = A - A * np.cos((2*np.pi/12)*(time))
 
-# Function for conduction (heat loss)
+
 def conduction_step(T_fluid, dt):
     Q_cond = k * surface_area * (T_fluid - T_ambient) / dx  # Conduction heat loss
     dT_cond = (Q_cond / (m * cp)) * dt  # Temperature change due to conductio
     return T_fluid - dT_cond
 
-def convection_step(T_fluid, dt):
-    Q_conv = 4000 # Convection heat input
+def convection_step(T_fluid, dt, power_curve):
+    Q_conv = 4000 * power_curve  # Convection heat input
     dT_conv = (Q_conv / (m * cp)) * dt  # Temperature change due to convection
     return T_fluid + dT_conv
+    #Q_conv = 4000  # Convection heat input
+    #dT_conv = (Q_conv / (m * cp)) * dt  # Temperature change due to convection
+    #return T_fluid + dT_conv
 
 # Simulation Loop
 for i in range(1, len(time)):
@@ -65,27 +69,50 @@ for i in range(1, len(time)):
             heater_on = True
 
         # Heater is on: Reheat the water using convection
-        if heater_on:
-            temperature[i] = convection_step(temperature[i], 0.01)  # 0.01 hours per step
-            if temperature[i] >= T_set:
-                temperature[i] = T_set  # Ensure it caps at 60°C
-                heater_on = False  # Turn off the heater
-        
+        #if heater_on:
+         #   temperature[i] = convection_step(temperature[i], 0.01)  # 0.01 hours per step
+          #      temperature[i] = T_set  # Ensure it caps at 60°C
+            #    heater_on = False  # Turn off the heater
+                
+        current_time = time[i]    
+        power_start_time = 6.02
+        power_end_time = 19.02
+        if power_start_time <= current_time <= power_end_time:
+            power_curve = A - A * np.cos((2 * np.pi / 12) * (current_time - power_start_time))
+            if heater_on:
+               temperature[i] = convection_step(temperature[i], 0.01, power_curve)
+                 # 0.01 hours per step
+               if temperature[i] >= T_set:
+                    temperature[i] = T_set  # Ensure it caps at 60°C
+                    heater_on = False  # Turn off the heater
+
+
+
+
     print(temperature[i])
 # Plot the Results
 plt.figure(figsize=(12, 6))
 
 # Hot Water Usage Plot
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)')
 plt.ylabel('Hot Water Usage (litres)')
 plt.xlabel('Time (hours)')
 plt.legend()
 
 # Geyser Temperature Plot
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 3)
 plt.plot(time, temperature, label='Geyser Temperature (°C)', color='r')
 plt.ylabel('Temperature (°C)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
+# Power Supply Plot
+plt.subplot(3, 1, 2)
+plt.plot(time, power_curve, label='Power Supply (Normalized)', color='g')
+plt.axvspan(21, 24, color='lightgreen', alpha=0.3, label='Constant Power Supply Period (21-24)')
+plt.axvspan(0, 7, color='lightgreen', alpha=0.3, label='Constant Power Supply Period (0-7)')
+plt.ylabel('Power Supply (0 to 1)')
 plt.xlabel('Time (hours)')
 plt.legend()
 

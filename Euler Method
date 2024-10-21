@@ -1,33 +1,19 @@
-# Constants
-m = 100  # Mass of the water in kg
-cp = 4186  # Specific heat capacity of water (J/kg·K)
-h = 500  # Convective heat transfer coefficient (W/m²·K)
-A_element = 0.793  # Surface area of the heating element in m²
-A_gyser = 5.0  # Surface area of the geyser walls in m²
-T_element = 100  # Surface temperature of the heating element in °C
-k = 15  # Thermal conductivity of the geyser walls (W/m·K)
-dx = 0.0015  # Thickness of the geyser walls in meters
-T_ambient = 25  # Ambient temperature outside in °C
-dt = 0.01  # Time step in hours
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Initial temperature of the fluid
-T_fluid = 50  # Initial temperature of the water in °C
+A = 0.5
+# Time variables
+time = np.arange(0, 24, 0.01)  # Time in hours (simulating a day with smaller time steps)
 
-# Function for convection (heating element on)
-def convection_step(T_fluid, dt):
-    Q_conv = h * A_element * (T_element - T_fluid)  # Convection heat input
-    dT_conv = (Q_conv / (m * cp)) * dt  # Temperature change due to convection
-    return T_fluid + dT_conv
+# Power curve calculation
+power_curve = A - A * np.cos((2*np.pi/4)*(time))
 
-# Function for conduction (heat loss)
-def conduction_step(T_fluid, dt):
-    Q_cond = k * A_gyser * (T_fluid - T_ambient) / dx  # Conduction heat loss
-    dT_cond = (Q_cond / (m * cp)) * dt  # Temperature change due to conduction
-    return T_fluid - dT_cond
-
-# Example usage of the two steps (separately executed based on conditions)
-# Convection: When the heating element is on
-T_fluid = convection_step(T_fluid, dt)
-
-# Conduction: When heat is being lost to the environment
-T_fluid = conduction_step(T_fluid, dt)
+# Plotting the curve
+plt.figure(figsize=(10, 6))
+plt.plot(time, power_curve, label='Power Curve')
+plt.title('Power Curve Over 24 Hours')
+plt.xlabel('Time (hours)')
+plt.ylabel('Power')
+plt.grid(True)
+plt.legend()
+plt.show()
