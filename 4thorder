@@ -37,7 +37,7 @@ heater_on = False  # Track whether the heater is on or off
 
 # Function for convection (heating element on)
 def convection_step(T_fluid, dt):
-    Q_conv = h * A_element * (T_element - T_fluid)  # Convection heat input
+    Q_conv = 1500
     dT_conv = (Q_conv / (m * cp)) * dt  # Temperature change due to convection
     return T_fluid + dT_conv
 
