@@ -7,8 +7,6 @@ T_cold = 25    # Cold water temperature in Celsius
 T_ambient = 25  # Ambient temperature in Celsius (environment temp)
 T_set = 60      # Desired maximum temperature
 T_threshold = 55  # Threshold below which the heating element turns on
-reheating_rate_per_minute = 2  # Heater raises temperature by 2°C per minute
-reheating_rate_per_time_step = reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Geyser Physical Properties
 water_capacity = 200  # Capacity of geyser in liters
