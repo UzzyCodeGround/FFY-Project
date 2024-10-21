@@ -1,36 +1,82 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Revised Heating Element Model with updated surface area
+# Initialize Variables
+T_initial = 60  # Initial geyser temperature in Celsius
+T_cold = 20     # Cold water temperature in Celsius
+T_ambient = 25  # Ambient temperature in Celsius (environment temp)
+T_set = 60      # Desired maximum temperature
+T_threshold = 55  # Threshold below which the heating element turns on
 
-# Define constants (adjusted estimates based on the provided dimensions)
-P = 1500  # Power of the heating element in watts (W)
-h = 500   # Convective heat transfer coefficient (W/m²·K) - adjusted for better simulation
-A = 0.829   # Surface area of the heating element in m² (calculated from provided dimensions)
-cp = 4.186  # Specific heat capacity of water (J/kg·K)
-m = 10     # Mass of the water in kg (example value)
-T_element = 100  # Surface temperature of the heating element in °C
-T_initial = 20   # Initial water temperature in °C
-time_duration = 3600  # Time duration to simulate in seconds (1 hour)
-dt = 1  # Time step in seconds
+# Geyser Physical Properties
+water_capacity = 200  # Capacity of geyser in liters
+height = 1.331  # Height of the geyser in meters
+radius = 0.596 / 2  # Radius of the geyser in meters (from width)
+surface_area = 2 * np.pi * radius * height  # Surface area in square meters
 
-# Create time array
-time = np.arange(0, time_duration, dt)
+# Convection and Conduction Properties
+h = 100  # Convective heat transfer coefficient (W/m^2°C)
+k = 0.5  # Thermal conductivity of the geyser wall (W/m°C)
+dx = 0.016  # Thickness of the geyser wall in meters
+heater_power = 3000  # Heater power in Watts (can be adjusted)
+specific_heat_water = 4.186  # Specific heat capacity of water (kJ/kg°C)
+density_water = 1000  # Density of water (kg/m^3)
 
-# Initialize temperature array for the fluid
-T_fluid = np.zeros_like(time)
-T_fluid[0] = T_initial
+# Time variables
+time = np.arange(0, 24, 0.01)  # Time in hours (simulating a day with smaller time steps)
+hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 
-# Euler method to update fluid temperature over time
+# Simulate Hot Water Usage
+for i, t in enumerate(time):
+    if 7 <= t <= 8 or 19 <= t <= 20:
+        hot_water_usage[i] = 20  # Use 20 liters during peak times
+
+# Geyser Temperature over Time
+temperature = np.full_like(time, T_initial)
+heater_on = False  # Track whether the heater is on or off
+
+# Simulation Loop
 for i in range(1, len(time)):
-    Q_conv = h * A * (T_element - T_fluid[i-1])  # Convective heat transfer
-    dT_dt = Q_conv / (m * cp)  # Rate of temperature change
-    T_fluid[i] = T_fluid[i-1] + dT_dt * dt  # Update fluid temperature
+    # Calculate new temperature when hot water is used
+    if hot_water_usage[i] > 0:
+        used_water = hot_water_usage[i]
+        inflow_water = used_water
+        temperature[i] = ((temperature[i-1] * (water_capacity - inflow_water)) + (T_cold * inflow_water)) / water_capacity
+    else:
+        # Gradual heat loss via conduction
+        Q_loss = (k * surface_area * (temperature[i-1] - T_ambient)) / dx
+        delta_T_loss = Q_loss / (water_capacity * density_water * specific_heat_water)
+        temperature[i] = temperature[i-1] - delta_T_loss
 
-# Plotting the results
-plt.plot(time / 60, T_fluid)  # Convert time to minutes for the plot
-plt.xlabel('Time (minutes)')
-plt.ylabel('Water Temperature (°C)')
-plt.title('Water Temperature vs Time (Heating Element)')
-plt.grid(True)
+        # Heater turns on if temperature drops below the threshold
+        if temperature[i] < T_threshold:
+            heater_on = True
+
+        # Heat gained by convection when heater is on
+        if heater_on:
+            Q_heater = heater_power  # Heater power in Watts
+            delta_T_gain = Q_heater / (water_capacity * density_water * specific_heat_water * 1000)  # Convert to kJ
+            temperature[i] += delta_T_gain
+            if temperature[i] >= T_set:
+                temperature[i] = T_set  # Ensure it caps at 60°C
+                heater_on = False  # Turn off the heater
+
+# Plot the Results
+plt.figure(figsize=(12, 6))
+
+# Hot Water Usage Plot
+plt.subplot(2, 1, 1)
+plt.plot(time, hot_water_usage, label='Hot Water Usage (litres)')
+plt.ylabel('Hot Water Usage (litres)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
+# Geyser Temperature Plot
+plt.subplot(2, 1, 2)
+plt.plot(time, temperature, label='Geyser Temperature (°C)', color='r')
+plt.ylabel('Temperature (°C)')
+plt.xlabel('Time (hours)')
+plt.legend()
+
+plt.tight_layout()
 plt.show()
