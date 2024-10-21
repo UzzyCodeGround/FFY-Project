@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 # Define constants (adjusted estimates based on the provided dimensions)
 P = 1500  # Power of the heating element in watts (W)
 h = 500   # Convective heat transfer coefficient (W/m²·K) - adjusted for better simulation
-A = 0.793   # Surface area of the heating element in m² (calculated from provided dimensions)
-cp = 4186  # Specific heat capacity of water (J/kg·K)
+A = 0.829   # Surface area of the heating element in m² (calculated from provided dimensions)
+cp = 4.186  # Specific heat capacity of water (J/kg·K)
 m = 10     # Mass of the water in kg (example value)
 T_element = 100  # Surface temperature of the heating element in °C
 T_initial = 20   # Initial water temperature in °C
