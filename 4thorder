@@ -30,7 +30,7 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:
-        hot_water_usage[i] = 20  # Use 20 liters during peak times
+        hot_water_usage[i] = 40  # Use 20 liters during peak times
 
 # Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
