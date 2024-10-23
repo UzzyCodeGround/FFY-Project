@@ -11,17 +11,14 @@ reheating_rate_per_minute = 2  # Heater raises temperature by 2°C per minute
 reheating_rate_per_time_step = reheating_rate_per_minute * 0.6  # Adjusted for 0.01-hour time steps (0.6 minutes)
 
 # Geyser Physical Properties
-water_capacity = 150  # Capacity of geyser in liters
+water_capacity = 200  # Capacity of geyser in liters
 m = water_capacity  # Mass of the water in kg (1 liter = 1 kg for water)
 cp = 4.186  # Specific heat capacity of water in J/kg°C
 
-surface_area = 0.46
+surface_area = 1.99
 
-# Heat Transfer Coefficients
-U = 1.2  # Overall heat transfer coefficient (in kJ/m^2°C)
-
-k = 0.8  # Thermal conductivity of geyser walls - 1 (W/m·K)
-dx = 0.009 # Thickness of the geyser walls in meters
+k = 0.06  # Thermal conductivity of geyser walls - 1 (W/m·K)
+dx = 0.020 # Thickness of the geyser walls in meters
 
 # Time variables
 time = np.arange(0, 24, 0.01)  # Time in hours (simulating a day with smaller time steps)
@@ -30,7 +27,7 @@ hot_water_usage = np.zeros_like(time)  # Empty array for hot water usage
 # Simulate Hot Water Usage
 for i, t in enumerate(time):
     if 7 <= t <= 8 or 19 <= t <= 20:
-        hot_water_usage[i] = 40  # Use 20 liters during peak times
+        hot_water_usage[i] = 55  # Use 20 liters during peak times
 
 # Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
