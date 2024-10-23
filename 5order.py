@@ -35,7 +35,6 @@ for i, t in enumerate(time):
 # Geyser Temperature over Time
 temperature = np.full_like(time, T_initial)
 heater_on = False  # Track whether the heater is on or off
-
 A = 0.5
 power_curve = np.zeros_like(time)  # Initialize power_curve as an array
 
@@ -52,13 +51,14 @@ def convection_step(T_fluid, dt, power_curve_value):
 # Simulation Loop
 power_start_time = 6.02
 power_end_time = 19.02
+total_duration = 13
 
 for i in range(1, len(time)):
     current_time = time[i]  # Get the current time
     
     # Calculate power curve only during the power generation window
     if power_start_time <= current_time <= power_end_time:
-        power_curve[i] = A - A * np.cos((2 * np.pi / 13) * (current_time - power_start_time))
+        power_curve[i] = A - A * np.cos((2 * np.pi / total_duration) * (current_time - power_start_time))
     else:
         power_curve[i] = 0  # No power outside this window
 
