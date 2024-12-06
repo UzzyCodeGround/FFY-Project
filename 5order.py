@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # Initialise Variables
 T_initial = 60  # Initial geyser temperature in Celsius
 T_cold = 25    # Cold water temperature in Celsius
